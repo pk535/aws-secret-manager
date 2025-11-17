@@ -1,0 +1,33 @@
+default:
+  tags:
+  - ops-gitlab-runner 
+
+stages:
+  - run_script
+
+variables:
+  ENVIRONMENT: "" 
+  NAMESPACE: "main" 
+  REGION: "us-east-1"
+  SERVICE_NAME: "" 
+  KEY: "{}"
+  VALUE: "{}" 
+  OVERWRITE_SECRET_VALUE: "no"
+
+create-update-aws-secret:
+  image: 
+    name: amazon/aws-cli
+  stage: run_script
+  when: manual
+  before_script:
+    - yum update -y \
+      && yum install -y python3 jq \
+      && yum clean all
+    - pip3 install --upgrade boto3
+    - aws --version
+    - python3 --version
+    - pwd
+  
+  script:
+    - chmod +x create-update-aws-secret.py 
+    - python3 create-update-aws-secret.py  $ENVIRONMENT $NAMESPACE $REGION $SERVICE_NAME $KEY $VALUE $OVERWRITE_SECRET_VALUE
